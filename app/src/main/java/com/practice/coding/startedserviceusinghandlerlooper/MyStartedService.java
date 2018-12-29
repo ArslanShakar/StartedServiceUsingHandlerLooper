@@ -4,12 +4,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 public class MyStartedService extends Service {
 
     private DownloadThread downloadThread;
     private static final String TAG = "MyTag";
+
 
     @Override
     public void onCreate() {
@@ -27,13 +29,17 @@ public class MyStartedService extends Service {
             */
         }
 
+        downloadThread.mHandler.setMyStartedService(this);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand Callled : ");
 
+        ResultReceiver resultReceiver = intent.getParcelableExtra(Intent.EXTRA_RESULT_RECEIVER);
+        downloadThread.mHandler.setResultReceiver(resultReceiver);
         String songName = intent.getStringExtra(Constants.MESSAGE_KEY);
+        Log.d(TAG, "onStartCommand Callled : "+songName+" With Start Id : "+startId);
 
         /* handler Send the message to the MessageQueue by using the underlaying thread reference..means jis thread k sath handler attacted
         ho ga..os thread k reference sy hm handler ko access kry gy and Message/data-packet MessageQueue ma place kry gy..
@@ -41,6 +47,7 @@ public class MyStartedService extends Service {
 
         Message message = Message.obtain();
         message.obj = songName;
+        message.arg1 = startId;
         downloadThread.mHandler.sendMessage(message);
 
         return Service.START_REDELIVER_INTENT;
@@ -58,4 +65,6 @@ public class MyStartedService extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestroy Called.");
     }
+
+
 }
