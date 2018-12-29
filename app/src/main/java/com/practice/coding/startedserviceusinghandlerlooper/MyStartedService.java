@@ -30,6 +30,7 @@ public class MyStartedService extends Service {
         }
 
         downloadThread.mHandler.setMyStartedService(this);
+        downloadThread.mHandler.setContext(getApplicationContext());
 
     }
 
@@ -38,8 +39,11 @@ public class MyStartedService extends Service {
 
         ResultReceiver resultReceiver = intent.getParcelableExtra(Intent.EXTRA_RESULT_RECEIVER);
         downloadThread.mHandler.setResultReceiver(resultReceiver);
+
         String songName = intent.getStringExtra(Constants.MESSAGE_KEY);
         Log.d(TAG, "onStartCommand Callled : "+songName+" With Start Id : "+startId);
+
+        Log.d(TAG, "onStartCommand run on Thread Name : "+Thread.currentThread().getName());
 
         /* handler Send the message to the MessageQueue by using the underlaying thread reference..means jis thread k sath handler attacted
         ho ga..os thread k reference sy hm handler ko access kry gy and Message/data-packet MessageQueue ma place kry gy..

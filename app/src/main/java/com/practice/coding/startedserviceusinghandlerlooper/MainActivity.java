@@ -1,8 +1,12 @@
 package com.practice.coding.startedserviceusinghandlerlooper;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -14,6 +18,25 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv;
     private ProgressBar progressBar;
     private Handler handler;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+    {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String songName = intent.getStringExtra(Constants.MESSAGE_KEY);
+            boolean isAllTasksCompleted = intent.getBooleanExtra(Constants.PROGRESS_KEY, false);
+
+            tv.append("\n"+songName+" : Downloaded!");
+
+            if(isAllTasksCompleted)
+            {
+                displayProgresBar(false);
+            }
+
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +46,18 @@ public class MainActivity extends AppCompatActivity {
         tv = findViewById(R.id.textView);
 
         handler = new Handler();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver, new IntentFilter(Constants.SERVICE_MESSAGE_KEY));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(broadcastReceiver);
     }
 
     public void runService(View view) {
@@ -105,12 +140,12 @@ public class MainActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        tv.append("\n"+songName+ " : Donloaded Successfully." );
+                       /* tv.append("\n"+songName+ " : Donloaded Successfully." );
 
                         if(isTaskCompleted)
                         {
                             displayProgresBar(false);
-                        }
+                        }*/
                     }
                 });
             }
